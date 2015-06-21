@@ -1,7 +1,10 @@
 #!/bin/bash
 
+#required (mysql, file, directory)
 type=
 
+#file variables
+file=
 
 function usage {
 	printf """Usage:
@@ -15,10 +18,13 @@ function usage {
 }
 
 
-while getopts t: opt; do
+while getopts t:f: opt; do
 	case $opt in
 	t)
 		type=$OPTARG
+		;;
+	f)
+		file=$OPTARG
 		;;
 	esac
 done
@@ -27,4 +33,10 @@ shift $((OPTIND -1))
 
 if [ -z "$type" ]; then
 	usage
+fi
+
+if [ "$type" == "file" ]; then
+	if [ -z "$file" ]; then
+		usage
+	fi
 fi
