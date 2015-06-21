@@ -14,7 +14,7 @@ file=
 
 function usage {
 	printf """Usage:
-	%s -t TYPE -dest DEST
+	%s -t TYPE -d DEST
 
 	TYPE:
 		mysql		For MySQL databases
@@ -28,12 +28,12 @@ function usage {
 }
 
 
-while getopts t:f: opt; do
+while getopts t:f:d: opt; do
 	case $opt in
 	t)
 		type=$OPTARG
 		;;
-	dest)
+	d)
 		dest=$OPTARG
 		;;
 	f)
@@ -44,8 +44,40 @@ done
 
 shift $((OPTIND -1))
 
-if [ -z "$type" ] || [ -z "$dest" ]; then
+if [ -z "$type" ]; then
+	echo "$type"
 	usage
+fi
+
+if [ -z "$dest" ]; then
+	echo "no?"
+fi
+
+if [ ! -d "$dest" ]; then
+	printf "\"%s\" does not exist.\nWould you like to create it now? (Y/N) [ENTER]: " "$dest"
+	read input
+	case "$input" in
+		y|Y )
+		;;
+		n|N ) printf "Please create the directory or change the directory with the -dest switch\nExiting...\n"
+			exit 1
+		;;
+		* ) printf "Invalid option.\nPlease create the directory or change the directory with the -dest switch\nExiting...\n"
+			exit 1
+		;;
+	esac
+
+	mkdir "$dest"
+	if [ $? -ne 0 ]; then
+		echo "Could not create directory."
+		exit 1
+	fi
+	echo "Directory created."
+fi
+
+if [ ! -w "$dest" ]; then
+	echo "Cannot write to directory. Please check the permissions."
+	exit 1
 fi
 
 if [ "$type" == "file" ]; then
